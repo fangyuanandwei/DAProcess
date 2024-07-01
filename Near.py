@@ -2,12 +2,12 @@ def NRC_option(fea_bank, score_bank,tar_idx, features_test, softmax_out):
     KK = 2
     K  = 3
 	
-	'''
+    '''    
     inputs_target = inputs_test.cuda()
     features_test = netF(inputs_target)
     output        = oldC(features_test)
     softmax_out   = nn.Softmax(dim=1)(output)
-	 '''
+    '''
 
     with torch.no_grad():
 		output_f_norm       = F.normalize(features_test)
@@ -16,6 +16,7 @@ def NRC_option(fea_bank, score_bank,tar_idx, features_test, softmax_out):
 		score_bank[tar_idx] = softmax_out.detach().clone()
 		distance            = output_f_ @ fea_bank.T
 		 _, idx_near        = torch.topk(distance, dim=-1,largest=True,k = K + 1)
+	
         idx_near            = idx_near[:, 1:]
         score_near          = score_bank[idx_near]
 
@@ -51,9 +52,10 @@ def GSFDA_option(fea_bank, score_bank, tar_idx, features_test, outputs_test):
 		score_near  = score_near.permute(0, 2, 1)
 	
 	softmax_out = nn.Softmax(dim=1)(outputs_test)
-    output_re   = softmax_out.unsqueeze(1)
-    const       = torch.log(torch.bmm(output_re, score_near)).sum(-1)
+	output_re   = softmax_out.unsqueeze(1)
+   	const       = torch.log(torch.bmm(output_re, score_near)).sum(-1)
     const_loss  = -torch.mean(const)
+	
 
 
 
